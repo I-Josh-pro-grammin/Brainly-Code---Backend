@@ -32,7 +32,7 @@ export class CoursesService{
     }
   }
 
-  async getCourseById(courseId : number) {
+  async getCourseById() {
 
   }
 

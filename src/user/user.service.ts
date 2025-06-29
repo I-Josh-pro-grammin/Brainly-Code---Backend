@@ -11,11 +11,7 @@ export class UserService {
   
   getMe(@GetUser() user: User){
         //return the user from the payload
-
-        return {
-          id: user.id,
-          email: user.email
-        }; // Return only plain values;
+        return user; // Return only plain values;
   }
 
   async editUser(userId: number, dto: EditUserDto) {
