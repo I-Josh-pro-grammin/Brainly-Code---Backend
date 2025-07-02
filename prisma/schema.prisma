@@ -39,8 +39,9 @@ model User {
   studentProfile StudentProfile?
 
   // New relations
-  progress UserCourseProgress[]
-  ratings  CourseRating[]
+  progress      UserCourseProgress[]
+  ratings       CourseRating[]
+  ChallengeLike ChallengeLike[]
 
   @@map("users")
 }
@@ -110,4 +111,26 @@ model CourseRating {
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
+}
+
+model Challenge {
+  id          Int     @id @default(autoincrement())
+  difficulty  String
+  title       String
+  description String
+  relation    String?
+  duration    Int
+  likes       Int     @default(0)
+
+  likesList ChallengeLike[]
+}
+
+model ChallengeLike {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  challengeId Int
+
+  @@unique([userId, challengeId])
 }

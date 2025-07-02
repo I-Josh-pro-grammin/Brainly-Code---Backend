@@ -10,6 +10,7 @@ import { ConfigModule } from "@nestjs/config";
 // } from "@nestjs/throttler";
 // import { APP_GUARD } from "@nestjs/core";
 import { CoursesModule } from './courses/courses.module';
+import { ChallengesModule } from './challenges/challenges.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CoursesModule } from './courses/courses.module';
     UserModule,
     PrismaModule,
     CoursesModule,
+    ChallengesModule,
   ],
   // providers: [
   //   {
