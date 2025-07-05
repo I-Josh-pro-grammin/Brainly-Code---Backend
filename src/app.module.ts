@@ -11,7 +11,6 @@ import { ConfigModule } from "@nestjs/config";
 // import { APP_GUARD } from "@nestjs/core";
 import { CoursesModule } from './courses/courses.module';
 import { ChallengesModule } from './challenges/challenges.module';
-import { CompilerModule } from './compiler/compiler.module';
 
 @Module({
   imports: [
@@ -25,7 +24,6 @@ import { CompilerModule } from './compiler/compiler.module';
     PrismaModule,
     CoursesModule,
     ChallengesModule,
-    CompilerModule,
   ],
   // providers: [
   //   {
