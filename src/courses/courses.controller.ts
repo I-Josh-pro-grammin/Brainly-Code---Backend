@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { CreateCourseDto } from "./dto";
 import { CoursesService } from "./courses.service";
 
@@ -17,8 +17,9 @@ export class CoursesController{
     return this.course.getCourse();
   }
 
+  //To get Course by ID ('...:3000/courses/{id}')
   @Get('/:id')
-  getCourseById() {
-    return this.course.getCourseById();
+  getCourseById(@Param('id') id: string) {
+    return this.course.getCourseById(id);
   }
 }

@@ -43,5 +43,26 @@ export class ChallengesService {
 
     return challenges;
   }
+
+  async getChallengeById(challengeId: string){
+    const cId = Number(challengeId)
+
+    if(isNaN(cId)){
+      throw new Error ("Invalid challenge Id is not a number");
+    }
+
+    const challenge = await this.prisma.challenge.findUnique({
+      where: {
+        id: cId
+      }
+    })
+
+    if (!challenge) {
+      throw new Error('Challenge not found');
+    }
+
+    return challenge;
+    
+  }
   
 }

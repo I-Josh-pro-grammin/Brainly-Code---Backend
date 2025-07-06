@@ -32,8 +32,25 @@ export class CoursesService{
     }
   }
 
-  async getCourseById() {
+  async getCourseById(courseId : string) {
+    //turning the courseId to a number
+    const cId = Number(courseId);
 
+    if(isNaN(cId)){
+      throw new Error("courseId is invalid number");
+    }    
+
+    const course = await this.prisma.course.findUnique({
+        where: {
+          id: cId
+        }
+      })
+
+      if (!course) {
+        throw new Error('Course not found');
+      }
+    
+      return course;
   }
 
   async getCourse() {

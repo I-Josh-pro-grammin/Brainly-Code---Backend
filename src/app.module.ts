@@ -11,6 +11,7 @@ import { ConfigModule } from "@nestjs/config";
 // import { APP_GUARD } from "@nestjs/core";
 import { CoursesModule } from './courses/courses.module';
 import { ChallengesModule } from './challenges/challenges.module';
+import { CourseModuleModule } from './course-module/course-module.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ChallengesModule } from './challenges/challenges.module';
     PrismaModule,
     CoursesModule,
     ChallengesModule,
+    CourseModuleModule,
   ],
   // providers: [
   //   {

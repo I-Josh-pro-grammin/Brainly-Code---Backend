@@ -20,4 +20,9 @@ export class ChallengesController {
   getChallenges() {
     return this.challengeService.getChallenges();
   }
+
+  @Get('/:id')
+  getChallengeById(@Param('id') id: string){
+    return this.challengeService.getChallengeById(id);
+  }
 }
