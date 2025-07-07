@@ -7,26 +7,32 @@ import { CreateCourseModuleDto } from './dto';
 export class ModuleService {
   constructor(private prisma: PrismaService){}
   async createModule(dto: CreateCourseModuleDto ) {
-    
+
     try {
-      const courseModule = await this.prisma.courseModule.create({
-        data: dto
-      })
-      
+
       const isCourseModuleExists = await this.prisma.courseModule.findFirst({
         where: {
-          id: courseModule.id,
+          courseId: dto.courseId,
         }
       })
 
       if(isCourseModuleExists){
-        throw new Error("Course already exists");
+        return "The course-module already exists";
       }
-      return "Course Module created successfully";
+
+      const courseModule = await this.prisma.courseModule.create({
+        data: dto
+      })
+  
+      return courseModule;
     } catch (error) {
       console.log(error);
       return error;
     } 
+  }
+
+  async getModules() {
+    return await this.prisma.courseModule.findMany();
   }
 }
 
