@@ -1,16 +1,19 @@
 /* eslint-disable prettier/prettier */
+
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
-export class CreateCourseModuleDto {
-  @IsNumber()
-  @IsNotEmpty()
-  courseId!: number;
+export class CreateMiniModuleDto {
 
-  @IsString()
   @IsNotEmpty()
+  @IsNumber()
+  courseModuleId!: number;
+
+  @IsNotEmpty()
+  @IsString()
   title!: string;
 
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   number!: number;
+
 }

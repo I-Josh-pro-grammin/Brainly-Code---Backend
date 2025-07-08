@@ -85,8 +85,33 @@ model CourseModule {
   course   Course @relation(fields: [courseId], references: [id])
   courseId Int
   title    String
-  content  String
-  order    Int
+  number   Int    @unique()
+
+  miniModules MiniModule[]
+}
+
+model MiniModule {
+  id             Int          @id @default(autoincrement())
+  courseModule   CourseModule @relation(fields: [courseModuleId], references: [id])
+  courseModuleId Int
+  title          String
+  number         Int          @unique()
+
+  lessons Lesson[]
+}
+
+model Lesson {
+  id           Int     @id @default(autoincrement())
+  title        String
+  explanation String
+  more         String?
+  example      String?
+  note         String?
+  assignment   String
+  number       Int     @unique()
+
+  miniModuleId Int
+  miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
 }
 
 model UserCourseProgress {

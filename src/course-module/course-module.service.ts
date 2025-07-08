@@ -12,12 +12,12 @@ export class ModuleService {
 
       const isCourseModuleExists = await this.prisma.courseModule.findFirst({
         where: {
-          courseId: dto.courseId,
+          number: dto.number,
         }
       })
 
       if(isCourseModuleExists){
-        return "The course-module already exists";
+        return "The course-module with this number already exists";
       }
 
       const courseModule = await this.prisma.courseModule.create({
@@ -26,13 +26,34 @@ export class ModuleService {
   
       return courseModule;
     } catch (error) {
-      console.log(error);
+      console.log(error); 
       return error;
     } 
   }
 
   async getModules() {
     return await this.prisma.courseModule.findMany();
+  }
+
+  async getModulesPerCourse(courseId: string) {
+ 
+    const cId = Number(courseId);
+
+    if(isNaN(cId)) {
+      return "CourseId is not a number"
+    }
+
+    const modulesPerCourse = await this.prisma.courseModule.findMany({
+      where: {
+        courseId: cId,
+      }
+    })
+
+    if(!modulesPerCourse) {
+      return "Modules not found!";
+    }
+
+    return modulesPerCourse;
   }
 }
 

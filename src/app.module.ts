@@ -12,6 +12,8 @@ import { ConfigModule } from "@nestjs/config";
 import { CoursesModule } from './courses/courses.module';
 import { ChallengesModule } from './challenges/challenges.module';
 import { CourseModuleModule } from './course-module/course-module.module';
+import { MiniModuleModule } from './mini-module/mini-module.module';
+import { LessonModule } from './lesson/lesson.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { CourseModuleModule } from './course-module/course-module.module';
     CoursesModule,
     ChallengesModule,
     CourseModuleModule,
+    MiniModuleModule,
+    LessonModule,
   ],
   // providers: [
   //   {
