@@ -29,4 +29,57 @@ export class LessonService {
       return error;
     }
   }
+
+  async getLessonsPerMiniModule(miniModuleId: string) {
+    try {
+      const mMID = Number(miniModuleId);
+
+      if(isNaN(mMID)){
+        return "The minimoduleid provided is not a number";
+      }
+  
+      const lessonsPerMiniModule = await this.prisma.lesson.findMany({
+        where: {
+          miniModuleId: mMID,
+        }
+      })
+  
+      return lessonsPerMiniModule;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async getLessons() {
+    try {
+      const lessons = await this.prisma.lesson.findMany();
+
+      return lessons;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async getLessonById(id: string) {
+    try {
+      const lessonId = Number(id);
+
+      if(isNaN(lessonId)){
+        return "The lessonId provided is not a number";
+      }
+
+      const lesson = await this.prisma.lesson.findUnique({
+        where: {
+          id: lessonId,
+        }
+      })
+
+      return lesson;
+    } catch (error) {
+      console.log(error)
+      return error;
+    }
+  }
 }
