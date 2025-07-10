@@ -69,7 +69,7 @@ export class AuthService {
 
     if (!user) {
       throw new ForbiddenException(
-        "Incorrect credentials",
+        "User not found",
       );
     }
 

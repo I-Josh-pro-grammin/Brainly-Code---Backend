@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Body, Controller, Get, Param, Put, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Param, Put, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { User } from "generated/prisma";
 import { GetUser } from "src/decorator";
 import { JwtGuard } from "src/guard";
@@ -61,8 +61,13 @@ export class UserController {
  
   @UseGuards(JwtGuard)
   @Get('')
-  async getUsers() {
+  getUsers() {
     return this.userService.getUsers();
   }
-  
+
+  @UseGuards(JwtGuard)
+  @Delete('/:id')
+  deleteUser(@Param('id') id: string) {
+    return this.userService.deleteUser(id);
+  }
 }

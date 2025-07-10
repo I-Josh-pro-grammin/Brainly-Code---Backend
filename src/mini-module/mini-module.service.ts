@@ -41,6 +41,9 @@ export class MiniModuleService {
     const miniModulesPerCourseModule = await this.prisma.miniModule.findMany({
       where: {
         courseModuleId: cMID
+      },
+      include: {
+        lessons: true,
       }
     })
 
