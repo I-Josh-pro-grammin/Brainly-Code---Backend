@@ -34,7 +34,6 @@ export class UserService {
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
-
   }
 }
 
@@ -43,4 +42,15 @@ export class UserService {
     return users;
   }
 
+  async deleteUser(id: string) {
+
+    const userId = Number(id);
+    const user = await this.prisma.user.delete({
+      where: {
+        id: userId,
+      }
+    })
+
+    return user
+  }
 }
