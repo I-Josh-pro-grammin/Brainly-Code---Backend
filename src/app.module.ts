@@ -14,6 +14,9 @@ import { ChallengesModule } from './challenges/challenges.module';
 import { CourseModuleModule } from './course-module/course-module.module';
 import { MiniModuleModule } from './mini-module/mini-module.module';
 import { LessonModule } from './lesson/lesson.module';
+import { VideoModule } from "./video/video.module";
+
+
 
 @Module({
   imports: [
@@ -30,12 +33,8 @@ import { LessonModule } from './lesson/lesson.module';
     CourseModuleModule,
     MiniModuleModule,
     LessonModule,
+    VideoModule,
   ],
-  // providers: [
-  //   {
-  //     provide: APP_GUARD,
-  //     useClass: ThrottlerGuard,
-  //   },
-  // ],
+
 })
 export class AppModule {}

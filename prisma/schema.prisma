@@ -78,6 +78,7 @@ model Course {
   modules  CourseModule[]
   progress UserCourseProgress[]
   ratings  CourseRating[]
+  videos   Video[]
 }
 
 model CourseModule {
@@ -88,6 +89,17 @@ model CourseModule {
   number   Int    @unique()
 
   miniModules MiniModule[]
+}
+
+model Video {
+  id       Int    @id @default(autoincrement())
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId Int
+  title    String
+  number   Int
+  url      String // Cloudinary video URL
+
+  @@unique([courseId, number])
 }
 
 model MiniModule {
@@ -101,14 +113,14 @@ model MiniModule {
 }
 
 model Lesson {
-  id           Int     @id @default(autoincrement())
-  title        String
+  id          Int     @id @default(autoincrement())
+  title       String
   explanation String
-  more         String?
-  example      String?
-  note         String?
-  assignment   String
-  number       Int     @unique()
+  more        String?
+  example     String?
+  note        String?
+  assignment  String
+  number      Int     @unique()
 
   miniModuleId Int
   miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
