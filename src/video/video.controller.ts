@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { 
   Body, 
   Controller, 
@@ -24,6 +25,7 @@ export class VideoController {
     @Body() createVideoDto: CreateVideoDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log("UPLOADED FILE:", file);
     return this.videoService.create(createVideoDto, file);
   }
 

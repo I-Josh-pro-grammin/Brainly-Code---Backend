@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
@@ -21,6 +22,7 @@ export class CloudinaryService {
             if (!result || !result.secure_url) {
             return reject(new Error('Upload failed or no URL returned'));
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             resolve(result.secure_url);
         },
         ).end(file.buffer);

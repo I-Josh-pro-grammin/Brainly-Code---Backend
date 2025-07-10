@@ -9,32 +9,37 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      transform:true
+      transform: true,
     }),
   );
 
-  app.useStaticAssets(join(__dirname , '../../', 'uploads'), {
+  app.useStaticAssets(join(__dirname, '../../', 'uploads'), {
     prefix: '/uploads/',
   });
 
   app.enableCors({
     origin: 'http://localhost:5173',
     credentials: true,
-  })
+  });
 
-  // Swagger configuration
+  // Swagger
   const config = new DocumentBuilder()
     .setTitle("Nest API")
     .setDescription("The Nest API description")
     .setVersion("1.0")
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
+
+  // ✅ Increase HTTP server timeout to 10 minutes
+  const server = app.getHttpServer();
+  server.setTimeout(10 * 60 * 1000); // 10 mins
 
   await app.listen(process.env.PORT ?? 3000);
 }

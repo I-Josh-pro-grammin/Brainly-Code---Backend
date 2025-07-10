@@ -15,6 +15,7 @@ import { CourseModuleModule } from './course-module/course-module.module';
 import { MiniModuleModule } from './mini-module/mini-module.module';
 import { LessonModule } from './lesson/lesson.module';
 import { VideoModule } from "./video/video.module";
+import { CloudinaryModule } from "./cloudinary/cloudinary.module";
 
 
 
@@ -34,6 +35,7 @@ import { VideoModule } from "./video/video.module";
     MiniModuleModule,
     LessonModule,
     VideoModule,
+    CloudinaryModule,
   ],
 
 })
