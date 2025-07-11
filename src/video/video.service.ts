@@ -24,11 +24,12 @@ export class VideoService {
     });
   }
 
-  async findAll() {
-    return this.prisma.video.findMany({
-      include: { course: true },
-    });
-  }
+async findByCourseId(courseId: number) {
+  return this.prisma.video.findMany({
+    where: { courseId },
+    include: { course: true },
+  });
+}
 
   async findOne(id: number) {
     return this.prisma.video.findUnique({

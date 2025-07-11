@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -29,15 +30,16 @@ export class VideoController {
     return this.videoService.create(createVideoDto, file);
   }
 
-  @Get()
-  findAll() {
-    return this.videoService.findAll();
-  }
+    @Get()
+    findByCourse(@Query('courseId') courseId: string) {
+      return this.videoService.findByCourseId(Number(courseId));
+    }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.videoService.findOne(id);
   }
+
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
