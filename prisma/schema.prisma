@@ -102,6 +102,8 @@ model Video {
   @@unique([courseId, number])
 }
 
+
+
 model MiniModule {
   id             Int          @id @default(autoincrement())
   courseModule   CourseModule @relation(fields: [courseModuleId], references: [id])
@@ -110,6 +112,7 @@ model MiniModule {
   number         Int          @unique()
 
   lessons Lesson[]
+  lessonVideos LessonVideo[]
 }
 
 model Lesson {
@@ -121,6 +124,16 @@ model Lesson {
   note        String?
   assignment  String
   number      Int     @unique()
+
+  miniModuleId Int
+  miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
+}
+
+model LessonVideo {
+   id          Int     @id @default(autoincrement())
+  title       String
+  number      Int     @unique()
+  url      String // Cloudinary video URL
 
   miniModuleId Int
   miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
