@@ -28,8 +28,4 @@ export class EditUserDto {
   @IsEmail()
   @IsOptional()
   email?: string;
-
-  @IsOptional()
-  @IsString()
-  image?: string;
 }

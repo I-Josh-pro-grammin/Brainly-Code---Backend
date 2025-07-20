@@ -16,6 +16,7 @@ datasource db {
 enum Role {
   ADMIN
   USER
+  SUPERADMIN
 }
 
 enum Level {
@@ -29,34 +30,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email    String  @unique
+  email    String @unique
   hash     String
   username String
-  image    String?
   role     Role
-
-  teacherProfile TeacherProfile?
-  studentProfile StudentProfile?
 
   // New relations
   progress      UserCourseProgress[]
   ratings       CourseRating[]
   ChallengeLike ChallengeLike[]
+  image         UserProfileImage[]
 
   @@map("users")
 }
 
-model TeacherProfile {
-  id          Int    @id @default(autoincrement())
-  teacherName String
-
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
-}
-
-model StudentProfile {
-  id          Int    @id @default(autoincrement())
-  studentName String
+model UserProfileImage {
+  id   Int    @id @default(autoincrement())
+  path String
 
   userId Int  @unique
   user   User @relation(fields: [userId], references: [id])
@@ -102,8 +92,6 @@ model Video {
   @@unique([courseId, number])
 }
 
-
-
 model MiniModule {
   id             Int          @id @default(autoincrement())
   courseModule   CourseModule @relation(fields: [courseModuleId], references: [id])
@@ -111,7 +99,7 @@ model MiniModule {
   title          String
   number         Int          @unique()
 
-  lessons Lesson[]
+  lessons      Lesson[]
   lessonVideos LessonVideo[]
 }
 
@@ -127,16 +115,26 @@ model Lesson {
 
   miniModuleId Int
   miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
+  solutions   LessonSolution[]
 }
 
 model LessonVideo {
-   id          Int     @id @default(autoincrement())
-  title       String
-  number      Int     @unique()
-  url      String // Cloudinary video URL
+  id     Int    @id @default(autoincrement())
+  title  String
+  number Int    @unique()
+  url    String // Cloudinary video URL
 
   miniModuleId Int
   miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
+}
+
+model LessonSolution {
+  id     Int    @id @default(autoincrement())
+  number Int    @unique()
+  solution  String
+
+  lessonId Int
+  lesson Lesson @relation(fields: [lessonId], references: [id])
 }
 
 model UserCourseProgress {
@@ -172,7 +170,9 @@ model Challenge {
   duration    Int
   likes       Int     @default(0)
 
+  instructions ChallengeInstructions[]
   likesList ChallengeLike[]
+  solutions ChallengeSolutions[]
 }
 
 model ChallengeLike {
@@ -183,4 +183,22 @@ model ChallengeLike {
   challengeId Int
 
   @@unique([userId, challengeId])
+}
+
+model ChallengeInstructions {
+  id Int @id @default(autoincrement())
+  number Int
+  instruction String
+
+  challengeId Int
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+}
+
+model ChallengeSolutions {
+  id Int @id @default(autoincrement())
+  number Int  @unique()
+  solution String
+
+  challengeId Int
+  challenge Challenge @relation(fields: [challengeId], references: [id])
 }

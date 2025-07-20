@@ -4,7 +4,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { join } from "path";
+import { resolve } from "path";
 import { NestExpressApplication } from "@nestjs/platform-express";
 
 async function bootstrap() {
@@ -17,7 +17,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useStaticAssets(join(__dirname, '../../', 'uploads'), {
+  app.useStaticAssets(resolve(__dirname, '.', 'uploads'), {
     prefix: '/uploads/',
   });
 
@@ -25,6 +25,8 @@ async function bootstrap() {
     origin: 'http://localhost:5173',
     credentials: true,
   });
+
+  console.log('Static path:', resolve(__dirname, '..', 'uploads'));
 
   // Swagger
   const config = new DocumentBuilder()
@@ -40,6 +42,7 @@ async function bootstrap() {
   // ✅ Increase HTTP server timeout to 10 minutes
   const server = app.getHttpServer();
   server.setTimeout(10 * 60 * 1000); // 10 mins
+
 
   await app.listen(process.env.PORT ?? 3000);
 }

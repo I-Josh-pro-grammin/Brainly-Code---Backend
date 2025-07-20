@@ -17,6 +17,8 @@ import { LessonModule } from './lesson/lesson.module';
 import { VideoModule } from "./video/video.module";
 import { LessonVideoModule } from "./lessonVideo/lesson-video.module";
 import { CloudinaryModule } from "./cloudinary/cloudinary.module";
+import { ProfileImageModule } from './profile-image/profile-image.module';
+import { ChallengeInstructionsModule } from './challenge-instructions/challenge-instructions.module';
 
 
 
@@ -38,6 +40,8 @@ import { CloudinaryModule } from "./cloudinary/cloudinary.module";
     VideoModule,
     LessonVideoModule,
     CloudinaryModule,
+    ProfileImageModule,
+    ChallengeInstructionsModule,
   ],
 
 })

@@ -14,13 +14,27 @@ export class UserService {
         return user; // Return only plain values;
   }
 
+  async  getCurrentUser(id: string) {
+   
+    const userId = Number(id);
+
+    if(isNaN(userId)) {
+      return "The id you provided is not a number";
+    }
+
+    return await this.prisma.user.findFirst({
+      where: {
+        id: userId
+      }
+    })
+  }
+
   async editUser(userId: number, dto: EditUserDto) {
     const user = await this.prisma.user.update({
       where: {
         id: userId,
       },
       data: {
-        image: dto.image,
         email: dto.email,
         username: dto.username,
       },
@@ -28,7 +42,6 @@ export class UserService {
 
     return {
       id: user.id,
-      image: user.image,
       email: user.email,
       username: user.username,
       role: user.role,
