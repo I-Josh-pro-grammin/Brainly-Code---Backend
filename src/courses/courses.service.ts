@@ -56,4 +56,21 @@ export class CoursesService{
   async getCourse() {
     return await this.prisma.course.findMany();
   }
+
+  async likeCourse(id: string) {
+    const courseId = Number(id);
+
+    if(isNaN(courseId)) {
+      return "The courseId you provided is not a number";
+    }
+
+    return this.prisma.course.update({
+      where: {id: courseId},
+      data: {
+        likes: {
+          increment: 1,
+        }
+      }
+    })
+  }
 }

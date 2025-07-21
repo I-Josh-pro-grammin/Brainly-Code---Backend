@@ -30,10 +30,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email    String @unique
-  hash     String
-  username String
-  role     Role
+  email     String  @unique
+  hash      String
+  username  String
+  role      Role
+  isPremium Boolean @default(false)
+
+  courseId Int    @default(1)
+  course   Course @relation(fields: [courseId], references: [id])
 
   // New relations
   progress      UserCourseProgress[]
@@ -62,6 +66,8 @@ model Course {
   duration      Int // Duration in weeks
   studentsCount Int      @default(0)
   rating        Float    @default(0.0)
+  likes         Int      @default(0)
+  completions   Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -69,6 +75,7 @@ model Course {
   progress UserCourseProgress[]
   ratings  CourseRating[]
   videos   Video[]
+  users    User[]
 }
 
 model CourseModule {
@@ -114,8 +121,8 @@ model Lesson {
   number      Int     @unique()
 
   miniModuleId Int
-  miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
-  solutions   LessonSolution[]
+  miniModule   MiniModule       @relation(fields: [miniModuleId], references: [id])
+  solutions    LessonSolution[]
 }
 
 model LessonVideo {
@@ -129,12 +136,12 @@ model LessonVideo {
 }
 
 model LessonSolution {
-  id     Int    @id @default(autoincrement())
-  number Int    @unique()
-  solution  String
+  id       Int    @id @default(autoincrement())
+  number   Int    @unique()
+  solution String
 
   lessonId Int
-  lesson Lesson @relation(fields: [lessonId], references: [id])
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
 }
 
 model UserCourseProgress {
@@ -168,11 +175,12 @@ model Challenge {
   description String
   relation    String?
   duration    Int
+  completions Int     @default(0)
   likes       Int     @default(0)
 
   instructions ChallengeInstructions[]
-  likesList ChallengeLike[]
-  solutions ChallengeSolutions[]
+  likesList    ChallengeLike[]
+  solutions    ChallengeSolutions[]
 }
 
 model ChallengeLike {
@@ -186,19 +194,19 @@ model ChallengeLike {
 }
 
 model ChallengeInstructions {
-  id Int @id @default(autoincrement())
-  number Int
+  id          Int    @id @default(autoincrement())
+  number      Int
   instruction String
 
   challengeId Int
-  challenge Challenge @relation(fields: [challengeId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
 }
 
 model ChallengeSolutions {
-  id Int @id @default(autoincrement())
-  number Int  @unique()
+  id       Int    @id @default(autoincrement())
+  number   Int    @unique()
   solution String
 
   challengeId Int
-  challenge Challenge @relation(fields: [challengeId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
 }
