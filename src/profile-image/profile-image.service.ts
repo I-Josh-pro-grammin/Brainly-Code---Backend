@@ -28,13 +28,19 @@ export class ProfileImageService {
     const userId = Number(id);
 
     if(isNaN(userId)) {
-      return "Your id was not a number";
+      return "The userId is not a number";
     }
 
-    return this.prisma.userProfileImage.findUnique({
+    const userProfileImage = this.prisma.userProfileImage.findUnique({
       where: {
         userId: userId,
       }
     })
+
+    if(!userProfileImage) {
+      return "User has no profile image"
+    }
+
+    return userProfileImage;
   }
 }

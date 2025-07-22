@@ -1,15 +1,23 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateChallengeDto } from './dto/createChallenge.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ChallengesService {
-  constructor ( private prisma: PrismaService ){}
+  constructor ( private prisma: PrismaService, private readonly logger = new Logger(ChallengesService.name)){}
 
   async createChallenge( dto : CreateChallengeDto ) {
-    const challenge = await this.prisma.challenge.create({data: dto});
-    return challenge;
+    try {
+      const challenge = await this.prisma.challenge.create({data: dto});
+    
+      return "Challenge created successfully";
+    } catch (error) {
+      this.logger.error('Request failed:',error);
+      throw new NotFoundException("Challenge not found");
+    }
   }
 
 
@@ -17,31 +25,44 @@ export class ChallengesService {
     const cId = Number(challengeId);
 
     if(isNaN(cId)){
-      throw new Error ("Invalid challenge Id is not a number");
+      throw new BadRequestException("Invalid challenge Id, must be a number");
     }
 
     const challenge = await this.prisma.challenge.findUnique({
       where: { id: cId },
     });
   
-    if (!challenge) {
-      throw new Error('Challenge not found');
-    }
-  
-    return this.prisma.challenge.update({
-      where: { id: cId },
-      data: {
-        likes: {
-          increment: 1,
+    try {
+    
+      if (!challenge) {
+        throw new NotFoundException("Challenge not found");
+      }
+
+      const likedChallenge = await this.prisma.challenge.update({
+        where: { id: cId },
+        data: {
+          likes: {
+            increment: 1,
+          },
         },
-      },
-    });
+      });
+
+      return "Challenge liked successfully";
+    } catch (error) {
+      this.logger.error('Request failed:',error);
+      throw new HttpException("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async getChallenges() {
-    const challenges = await this.prisma.challenge.findMany();
+    try {
+      const challenges = await this.prisma.challenge.findMany();
 
-    return challenges;
+      return challenges;
+    } catch (error) {
+      this.logger.error('Request failed:',error)
+      throw new NotFoundException("Unable to get Challenges");
+    }
   }
 
   async getChallengeById(challengeId: string){
@@ -51,17 +72,22 @@ export class ChallengesService {
       throw new Error ("Invalid challenge Id is not a number");
     }
 
-    const challenge = await this.prisma.challenge.findUnique({
-      where: {
-        id: cId
+    try {
+      const challenge = await this.prisma.challenge.findUnique({
+        where: {
+          id: cId
+        }
+      })
+  
+      if (!challenge) {
+        throw new NotFoundException('Challenge not found');
       }
-    })
-
-    if (!challenge) {
-      throw new Error('Challenge not found');
+  
+      return challenge;
+    } catch (error) {
+      this.logger.error('Request failed:',error)
+      throw new HttpException("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    return challenge;
     
   }
   
