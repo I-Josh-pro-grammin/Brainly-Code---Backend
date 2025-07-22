@@ -30,6 +30,8 @@ export class UserService {
   }
 
   async editUser(userId: number, dto: EditUserDto) {
+      console.log('User ID:', userId);
+  console.log('DTO received:', dto);
     const user = await this.prisma.user.update({
       where: {
         id: userId,
@@ -37,9 +39,9 @@ export class UserService {
       data: {
         email: dto.email,
         username: dto.username,
+        
       },
     });
-
     return {
       id: user.id,
       email: user.email,

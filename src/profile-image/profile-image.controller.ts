@@ -3,7 +3,7 @@ import { extname, resolve } from 'path';
 import { BadRequestException, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ProfileImageService } from './profile-image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 @Controller('profile-image')
 export class ProfileImageController {
   constructor(private profileImageService: ProfileImageService) {}
@@ -11,17 +11,12 @@ export class ProfileImageController {
   @Post(':id')
   @UseInterceptors(
     FileInterceptor('image', {
-      storage: diskStorage({
-        destination: resolve(__dirname, '..', '..', '..', 'uploads', 'profile-images' ),
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
+      storage: memoryStorage(),
       limits: {
         fileSize: 2 * 1024 * 1024, // 2MB
       },
       fileFilter: (req, file, cb) => {
+        console.log("Filter run")
         if (
           file.mimetype === 'image/jpeg' ||
           file.mimetype === 'image/png' ||
@@ -34,12 +29,11 @@ export class ProfileImageController {
       },
     }),
   )
-    uploadProfileImage( @Param('id') userId: string, @UploadedFile() file: Express.Multer.File,
-  ){
-    console.log('Uploaded File:', file); // 👈 ADD THIS
-    const imagePath = file ? `${file.filename}` : undefined;
-    console.log('Image Path:', imagePath); // 👈 You said this is undefined
-    return this.profileImageService.uploadProfileImage(userId, file);
+  async uploadProfileImage(
+    @Param('id') id: string,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    return this.profileImageService.uploadProfileImage(id, image);
   }
 
   @Get(':id')
