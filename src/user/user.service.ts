@@ -35,6 +35,7 @@ export class UserService {
         id: userId,
       },
       data: {
+        isPremium: dto.isPremium,
         email: dto.email,
         username: dto.username,
       },
@@ -45,6 +46,7 @@ export class UserService {
       email: user.email,
       username: user.username,
       role: user.role,
+      isPremium: user.isPremium,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
   }
@@ -66,4 +68,5 @@ export class UserService {
 
     return user
   }
+
 }
