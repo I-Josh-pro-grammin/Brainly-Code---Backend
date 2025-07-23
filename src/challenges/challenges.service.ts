@@ -7,7 +7,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ChallengesService {
-  constructor ( private prisma: PrismaService, private readonly logger = new Logger(ChallengesService.name)){}
+  private readonly logger = new Logger(ChallengesService.name);
+
+  constructor(private prisma: PrismaService) {}
 
   async createChallenge( dto : CreateChallengeDto ) {
     try {
