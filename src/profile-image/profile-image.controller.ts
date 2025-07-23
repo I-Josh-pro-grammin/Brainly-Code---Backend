@@ -12,7 +12,7 @@ export class ProfileImageController {
     FileInterceptor('image', {
       storage: memoryStorage(),
       limits: {
-        fileSize: 2 * 1024 * 1024, // 2MB
+       fileSize: 20 * 1024 * 1024, // 2MB
       },
       fileFilter: (req, file, cb) => {
         console.log("Filter run")
