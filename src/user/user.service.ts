@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { GetUser } from "src/decorator";
 import { User } from "generated/prisma";
+import { EditUserDto } from "./dto";
 
 @Injectable()
 export class UserService {
@@ -33,5 +34,29 @@ export class UserService {
 
     return currentUser;
   }
+
+  async editUser(userId: number, dto: EditUserDto) {
+
+    const user = await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        isPremium: dto.isPremium,
+        email: dto.email,
+        username: dto.username,
+      },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      isPremium: user.isPremium,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+  }
+}
 
 }

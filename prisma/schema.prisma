@@ -36,8 +36,8 @@ model User {
   role      Role
   isPremium Boolean @default(false)
 
-  courseId Int    @default(1)
-  course   Course @relation(fields: [courseId], references: [id])
+  courseId Int?
+  course   Course? @relation(fields: [courseId], references: [id])
 
   // New relations
   progress      UserCourseProgress[]

@@ -64,13 +64,13 @@ export class CoursesService{
       return "The courseId you provided is not a number";
     }
 
-    return this.prisma.course.update({
-      where: {id: courseId},
-      data: {
-        likes: {
-          increment: 1,
-        }
-      }
-    })
+  return this.prisma.course.update({
+    where: { id: courseId },
+    data: {
+      likes: {
+        increment: 1,
+      },
+    },
+  });
   }
 }
