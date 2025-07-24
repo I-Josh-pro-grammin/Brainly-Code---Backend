@@ -44,6 +44,7 @@ model User {
   ratings       CourseRating[]
   ChallengeLike ChallengeLike[]
   image         UserProfileImage[]
+  createdCourses Course[] @relation("CreatedCourses")
 
   @@map("users")
 }
@@ -59,6 +60,8 @@ model UserProfileImage {
 // New models
 model Course {
   id            Int      @id @default(autoincrement())
+  creatorId Int
+  creator   User @relation("CreatedCourses", fields: [creatorId], references: [id])
   title         String   @unique()
   category      String
   level         Level
