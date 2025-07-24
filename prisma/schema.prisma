@@ -107,10 +107,12 @@ model MiniModule {
   courseModule   CourseModule @relation(fields: [courseModuleId], references: [id])
   courseModuleId Int
   title          String
-  number         Int          @unique()
+  number         Int          
 
   lessons      Lesson[]
   lessonVideos LessonVideo[]
+  
+  @@unique([courseModuleId, number])
 }
 
 model Lesson {

@@ -9,8 +9,4 @@ export class CreateCourseModuleDto {
   @IsString()
   @IsNotEmpty()
   title!: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  number!: number;
 }

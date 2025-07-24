@@ -7,11 +7,7 @@ export class CreateVideoDto {
   @IsNotEmpty()
   title!: string;
 
-  @Type(() => Number)
   @IsNumber()
-  number!: number;
-
-  @Type(() => Number)
-  @IsNumber()
+  @Type(() => Number) // ✅ this is key
   courseId!: number;
 }

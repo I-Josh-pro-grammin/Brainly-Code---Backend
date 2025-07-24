@@ -12,8 +12,4 @@ export class CreateMiniModuleDto {
   @IsString()
   title!: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  number!: number;
-
 }

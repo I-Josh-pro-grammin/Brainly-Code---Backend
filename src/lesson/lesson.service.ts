@@ -7,28 +7,82 @@ import { CreateLessonDto } from './dto';
 export class LessonService {
   constructor(private prisma: PrismaService) {}
 
-  async createLesson(dto: CreateLessonDto) {
-    try {
-      const lessonExists = await this.prisma.lesson.findUnique({
+async createLesson(dto: CreateLessonDto) {
+  try {
+    // 1. Get the highest lesson number under the same miniModuleId
+    const lastLesson = await this.prisma.lesson.findFirst({
+      where: {
+        miniModuleId: dto.miniModuleId,
+      },
+      orderBy: {
+        number: 'desc',
+      },
+    });
+
+    // 2. Determine the next number
+    const nextNumber = lastLesson ? lastLesson.number + 1 : 1;
+
+    // 3. Create the lesson
+    const lesson = await this.prisma.lesson.create({
+      data: {
+        miniModuleId: dto.miniModuleId,
+        title: dto.title,
+        explanation: dto.explanation,
+        more: dto.more,
+        example: dto.example,
+        note: dto.note,
+        assignment: dto.assignment,
+        number: nextNumber,
+        },
+      });
+
+      // 4. Find the Course related to this lesson
+      const course = await this.prisma.course.findFirst({
         where: {
-          number: dto.number
-        }
-      })
+          modules: {
+            some: {
+              miniModules: {
+                some: {
+                  lessons: {
+                    some: {
+                      id: lesson.id,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
 
-      if(lessonExists){
-        return "Lesson with this number already exists";
+      if (course) {
+        // 5. Count all lessons in this course
+        const totalLessons = await this.prisma.lesson.count({
+          where: {
+            miniModule: {
+              courseModule: {
+                courseId: course.id,
+              },
+            },
+          },
+        });
+
+        // 6. Update course duration with the total number of lessons
+        await this.prisma.course.update({
+          where: { id: course.id },
+          data: { duration: totalLessons },
+        });
       }
-
-      const lesson = await this.prisma.lesson.create({
-        data: dto
-      })
 
       return lesson;
     } catch (error) {
-      console.log(error)
-      return error;
+      console.error(error);
+      throw error;
     }
   }
+
+
+
 
   async getLessonsPerMiniModule(miniModuleId: string) {
     try {

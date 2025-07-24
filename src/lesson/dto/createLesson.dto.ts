@@ -30,8 +30,4 @@ export class CreateLessonDto {
   @IsNotEmpty()
   assignment!: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  number!: number
-
 }

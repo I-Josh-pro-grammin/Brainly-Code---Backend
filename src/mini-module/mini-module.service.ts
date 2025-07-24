@@ -7,29 +7,37 @@ import { CreateMiniModuleDto } from './dto';
 export class MiniModuleService {
   constructor(private prisma: PrismaService) {}
 
-  async createMiniModule(dto: CreateMiniModuleDto) {
- 
+    async createMiniModule(dto: CreateMiniModuleDto) {
     try {
-      
-      const isMiniModuleExists = await this.prisma.miniModule.findFirst({
+      // 1. Get the highest number for miniModules under the same courseModuleId
+      const lastMiniModule = await this.prisma.miniModule.findFirst({
         where: {
-          number: dto.number,
-        }
-      })
-      if (isMiniModuleExists) {
-        return "The mini-module with this Number already exists";
-      }
-
-      const miniModule = await this.prisma.miniModule.create({
-        data: dto
+          courseModuleId: dto.courseModuleId,
+        },
+        orderBy: {
+          number: 'desc',
+        },
       });
-  
+
+      // 2. Auto-increment number
+      const nextNumber = lastMiniModule ? lastMiniModule.number + 1 : 1;
+
+      // 3. Create the miniModule with the auto-incremented number
+      const miniModule = await this.prisma.miniModule.create({
+        data: {
+          courseModuleId: dto.courseModuleId,
+          title: dto.title,
+          number: nextNumber,
+        },
+      });
+
       return miniModule;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return error;
     }
   }
+
 
   async getMiniModulesPerCourseModule(courseModuleId: string) {
     const cMID = Number(courseModuleId);
