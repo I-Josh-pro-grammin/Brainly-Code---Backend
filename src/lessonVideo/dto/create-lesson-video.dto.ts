@@ -6,7 +6,7 @@ export class CreateLessonVideoDto {
   @IsNotEmpty()
   title!: string;
 
-  @Type(()=>Number)
+  @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
   miniModuleId!: number;

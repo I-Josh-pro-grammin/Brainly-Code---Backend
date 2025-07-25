@@ -1,5 +1,4 @@
-/* eslint-disable prettier/prettier */
-import { IsNotEmpty,IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateVideoDto {
@@ -7,7 +6,8 @@ export class CreateVideoDto {
   @IsNotEmpty()
   title!: string;
 
+  @Type(() => Number)
   @IsNumber()
-  @Type(() => Number) // ✅ this is key
+  @IsNotEmpty()
   courseId!: number;
 }
