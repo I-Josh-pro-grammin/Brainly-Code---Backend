@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateChallengeDto {
   @IsNotEmpty()
@@ -19,6 +19,6 @@ export class CreateChallengeDto {
   relation!: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  duration!: number;
+  @IsString()
+  duration!: string;
 }
