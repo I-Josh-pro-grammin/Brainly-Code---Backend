@@ -21,7 +21,11 @@ export class VideoController {
   constructor(private readonly videoService: VideoService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', {
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100 MB max, adjust as needed
+  },
+}))
   create(
     @Body() createVideoDto: CreateVideoDto,
     @UploadedFile() file: Express.Multer.File,

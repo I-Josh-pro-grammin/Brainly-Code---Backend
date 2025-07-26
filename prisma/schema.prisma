@@ -86,10 +86,13 @@ model CourseModule {
   course   Course @relation(fields: [courseId], references: [id])
   courseId Int
   title    String
-  number   Int    @unique()
+  number   Int
 
   miniModules MiniModule[]
+  
+  @@unique([courseId, number]) 
 }
+
 
 model Video {
   id       Int    @id @default(autoincrement())
