@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ModuleService } from './course-module.service';
-import { CreateCourseModuleDto } from './dto';
+import { CreateCourseModuleDto, CreateModuleProgressDto } from './dto';
 
 @Controller('modules')
 export class ModuleController {
@@ -20,5 +20,15 @@ export class ModuleController {
   @Get('/:id')
   getModulesPerCourse(@Param('id') id: string) {
     return this.moduleService.getModulesPerCourse(id);
+  }
+
+  @Post('/progress')
+  createModuleProgress(@Body() dto: CreateModuleProgressDto) {
+    return this.moduleService.createModuleProgress(dto);
+  }
+
+  @Patch('/progress/:id')
+  incrementModuleProgress(@Param('id') id: number, @Body() moduleId: number) {
+    return this.moduleService.incrementModuleProgress(id, moduleId);
   }
 }

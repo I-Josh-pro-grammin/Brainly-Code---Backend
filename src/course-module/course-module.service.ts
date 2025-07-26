@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCourseModuleDto } from './dto';
+import { CreateCourseModuleDto, CreateModuleProgressDto } from './dto';
 
 @Injectable()
 export class ModuleService {
+  private readonly Logger = new Logger(ModuleService.name);
   constructor(private prisma: PrismaService) {}
 
   async createModule(dto: CreateCourseModuleDto) {
@@ -58,5 +59,106 @@ export class ModuleService {
     }
 
     return modulesPerCourse;
+  }
+
+  async createModuleProgress(dto: CreateModuleProgressDto) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: dto.userId,
+      }
+    })
+
+    if(!user) {
+      throw new NotFoundException("User Does not exist");
+    }
+    const module = await this.prisma.courseModule.findFirst({
+      where: {
+        id: dto.courseModuleId,
+      }
+    })
+
+    if(!module) {
+      throw new NotFoundException("Module not found");
+    }
+
+    try {
+      const moduleProgress  =  await this.prisma.userModuleProgress.create({data: dto});
+
+      return {
+        message: "Module progress started",
+        data: moduleProgress
+      }
+    } catch (error) {
+      this.Logger.error(error);
+      throw new HttpException("Unable to create module: ", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async incrementModuleProgress( id: number, moduleId: number ) {
+    const miniModules = await this.prisma.miniModule.findMany({
+      where: {
+        courseModuleId: moduleId,
+      }
+    })
+
+    const totalSteps = miniModules.length;
+
+    const moduleProgress = await this.prisma.userModuleProgress.findUnique({
+      where: {
+        id: id
+      }
+    })
+
+    console.log()
+    if(!moduleProgress){
+      throw new NotFoundException("Moduleprogress not found");
+    }
+
+    let nextStep = moduleProgress?.currentStep + 1;
+
+    if(nextStep > totalSteps) {
+      nextStep = totalSteps;
+    }
+
+    const percentage = Math.round((nextStep / totalSteps) * 100);
+
+    const updatedProgress = await this.prisma.userModuleProgress.update({
+      where: {
+        id: id,
+      },
+      data: {
+        currentStep: nextStep,
+      }
+    })
+
+    try {
+      if(percentage === 100) {
+        await this.prisma.userCourseProgress.update({
+          where: {
+            id: id,
+          },
+          data: {
+            completed: true,
+          }
+        })
+        return {
+          message: "Module completed",
+          percentage: percentage,
+          currentStep: nextStep,
+          numberOfMiniModules: totalSteps,
+        }
+  
+      }
+  
+      return {
+        message: "tracking ModuleProgress",
+        percentage: percentage,
+        currentStep: updatedProgress?.currentStep,
+        numberOfMiniModules: totalSteps,
+      }
+    } catch (error) {
+      this.Logger.error(error);
+      throw new HttpException("Unable track progress: ", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
