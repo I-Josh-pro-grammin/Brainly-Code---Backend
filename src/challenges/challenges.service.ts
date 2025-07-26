@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateChallengeDto } from './dto/createChallenge.dto';
@@ -13,9 +12,11 @@ export class ChallengesService {
 
   async createChallenge( dto : CreateChallengeDto ) {
     try {
-      const challenge = await this.prisma.challenge.create({data: dto});
+      const challenge = await this.prisma.challenge.create({data: dto})
     
-      return "Challenge created successfully";
+      return {"message": "Challenge created successfully",
+        challenge: challenge
+      };
     } catch (error) {
       this.logger.error('Request failed:',error);
       throw new NotFoundException("Challenge not found");
@@ -40,6 +41,7 @@ export class ChallengesService {
         throw new NotFoundException("Challenge not found");
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const likedChallenge = await this.prisma.challenge.update({
         where: { id: cId },
         data: {
@@ -49,7 +51,7 @@ export class ChallengesService {
         },
       });
 
-      return "Challenge liked successfully";
+      return {"message": "Challenge liked"};
     } catch (error) {
       this.logger.error('Request failed:',error);
       throw new HttpException("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);

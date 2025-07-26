@@ -25,6 +25,11 @@ export class CoursesService {
         createdAt: true,
       },
     });
+
+    return {
+      message: "Course Created successfully",
+      course: course,
+    }
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === "P2002") {

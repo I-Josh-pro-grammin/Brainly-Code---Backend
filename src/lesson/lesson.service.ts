@@ -66,11 +66,12 @@ async createLesson(dto: CreateLessonDto) {
             },
           },
         });
+        const totalLessonsDuration = `${totalLessons}`;
 
         // 6. Update course duration with the total number of lessons
         await this.prisma.course.update({
           where: { id: course.id },
-          data: { duration: totalLessons },
+          data: { duration: totalLessonsDuration },
         });
       }
 

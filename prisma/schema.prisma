@@ -60,13 +60,13 @@ model UserProfileImage {
 // New models
 model Course {
   id            Int      @id @default(autoincrement())
-  creatorId Int
+  creatorId Int 
   creator   User @relation("CreatedCourses", fields: [creatorId], references: [id])
   title         String   @unique()
   category      String
   level         Level
   description   String
-  duration      Int // Duration in weeks
+  duration      String    // Duration in weeks
   studentsCount Int      @default(0)
   rating        Float    @default(0.0)
   likes         Int      @default(0)
@@ -182,7 +182,7 @@ model Challenge {
   title       String
   description String
   relation    String?
-  duration    Int
+  duration    String
   completions Int     @default(0)
   likes       Int     @default(0)
 
