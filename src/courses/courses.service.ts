@@ -49,6 +49,13 @@ export class CoursesService {
         title: true,
         category: true,
         createdAt: true,
+        description: true,
+        duration: true,
+        studentsCount: true,
+        rating: true,
+        level: true,
+        likes:true,
+        completions: true
         // include other fields if needed
       },
     });
@@ -90,4 +97,95 @@ export class CoursesService {
       },
     });
   }
+
+  async deleteCourse(courseId: number) {
+  const course = await this.prisma.course.findUnique({
+    where: { id: courseId },
+    include: {
+      modules: {
+        include: {
+          miniModules: {
+            include: {
+              lessons: {
+                include: {
+                  solutions: true,
+                },
+              },
+              lessonVideos: true,
+            },
+          },
+        },
+      },
+      videos: true,
+      progress: true,
+      ratings: true,
+    },
+  });
+
+  if (!course) throw new Error("Course not found");
+
+  // Delete LessonSolutions
+  for (const module of course.modules) {
+    for (const miniModule of module.miniModules) {
+      for (const lesson of miniModule.lessons) {
+        await this.prisma.lessonSolution.deleteMany({
+          where: { lessonId: lesson.id },
+        });
+      }
+    }
+  }
+
+  // Delete Lessons
+  for (const module of course.modules) {
+    for (const miniModule of module.miniModules) {
+      await this.prisma.lesson.deleteMany({
+        where: { miniModuleId: miniModule.id },
+      });
+    }
+  }
+
+  // Delete LessonVideos
+  for (const module of course.modules) {
+    for (const miniModule of module.miniModules) {
+      await this.prisma.lessonVideo.deleteMany({
+        where: { miniModuleId: miniModule.id },
+      });
+    }
+  }
+
+  // Delete MiniModules
+  for (const module of course.modules) {
+    await this.prisma.miniModule.deleteMany({
+      where: { courseModuleId: module.id },
+    });
+  }
+
+  // Delete CourseModules
+  await this.prisma.courseModule.deleteMany({
+    where: { courseId: course.id },
+  });
+
+  // Delete Videos
+  await this.prisma.video.deleteMany({
+    where: { courseId: course.id },
+  });
+
+  // Delete Ratings
+  await this.prisma.courseRating.deleteMany({
+    where: { courseId: course.id },
+  });
+
+  // Delete Progress
+  await this.prisma.userCourseProgress.deleteMany({
+    where: { courseId: course.id },
+  });
+
+  // Finally, delete the course
+  await this.prisma.course.delete({
+    where: { id: course.id },
+  });
+
+  return { message: "Course and all related data deleted successfully." };
+}
+
 }
