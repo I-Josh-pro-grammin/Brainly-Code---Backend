@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { CreateCourseDto } from "./dto";
+import { CreateCourseDto, CreateUserCourseProgressDto } from "./dto";
 import { CoursesService } from "./courses.service";
 import { JwtGuard } from "src/guard";
 import { GetUser } from 'src/decorator';
@@ -20,7 +20,7 @@ export class CoursesController{
 
   @Get('')
   getCourses() {
-    return this.coursesService.getCourse();
+    return this.coursesService.getCourses();
   }
 
   @UseGuards(JwtGuard)
@@ -37,5 +37,15 @@ export class CoursesController{
   @Patch('/:courseId')
   likeCourse(@Param('courseId') courseId: string) {
     return this.coursesService.likeCourse(courseId);
+  }
+
+  @Post('/progress')
+  createUserCourseProgress(@Body() dto: CreateUserCourseProgressDto) {
+    return this.coursesService.createUserCourseProgress(dto);
+  }
+
+  @Patch('/progress/:id')
+  incrementUserCourseProgress(@Param('id') id: number, @Body() userId: number ) {
+    return this.coursesService.incrementUserCourseProgress(id, userId )
   }
 }

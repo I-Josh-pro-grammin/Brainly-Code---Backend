@@ -1,11 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateCourseDto } from "./dto";
+import { CreateCourseDto, CreateUserCourseProgressDto } from "./dto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class CoursesService {
+  private readonly logger = new Logger(CoursesService.name);
   constructor(private prisma: PrismaService) {}
 
   async createCourse(dto: CreateCourseDto, creatorId: number) {
@@ -76,7 +77,7 @@ export class CoursesService {
     return course;
   }
 
-  async getCourse() {
+  async getCourses() {
     return this.prisma.course.findMany();
   }
 
@@ -95,4 +96,98 @@ export class CoursesService {
       },
     });
   }
+
+  async createUserCourseProgress(dto: CreateUserCourseProgressDto): Promise<{message: string, data: object}> {
+    const user = await this.prisma.user.findUnique({ where: { id: dto.userId } });
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    const course = await this.prisma.course.findUnique({ where: { id: dto.courseId } });
+    if (!course) {
+      throw new NotFoundException(`Course not found`);
+    }
+
+    try {
+      const userCourseProgress = await this.prisma.userCourseProgress.create({
+        data: {
+          user: { connect: { id: dto.userId } },
+          course: { connect: { id: dto.courseId } },
+          currentStep: dto.currentStep ?? 0,
+          completed: dto.completed ?? false,
+          rating: dto.rating,
+        },
+      });
+      return {
+        "message": "The course progress has started being traced",
+        data: userCourseProgress,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException('Failed to create user course progress');
+    }
+  }
+
+  async incrementUserCourseProgress(id: number, courseId: number) {
+    const courseModules = await this.prisma.courseModule.findMany({
+      where: {
+        courseId: courseId,
+      },
+    });
+  
+    const totalSteps = courseModules.length;
+  
+    if (totalSteps === 0) {
+      throw new Error("This course has no modules.");
+    }
+  
+    const courseProgress = await this.prisma.userCourseProgress.findUnique({
+      where: { id: id },
+    });
+  
+    if (!courseProgress) {
+      throw new Error("Progress not found.");
+    }
+  
+    let nextStep = courseProgress.currentStep + 1;
+  
+    if (nextStep > totalSteps) {
+      nextStep = totalSteps;
+    }
+  
+    const percent = Math.round((nextStep / totalSteps) * 100);
+  
+    await this.prisma.userCourseProgress.update({
+      where: { id: id },
+      data: {
+        currentStep: nextStep,
+      },
+    });
+  
+    if (percent === 100) {
+      await this.prisma.userCourseProgress.update({
+        where: {
+          id: id,
+        }, 
+        data: {
+          completed: true,
+        }
+      })
+      return {
+        message: "Course complete",
+        percentComplete: percent,
+        step: nextStep,
+        totalSteps: totalSteps,
+      };
+    }
+  
+    return {
+      message: "New step started",
+      percentComplete: percent,
+      step: nextStep,
+      totalSteps: totalSteps,
+    };
+  }
+  
+  
 }
