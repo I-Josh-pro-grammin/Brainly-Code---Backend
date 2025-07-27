@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { LessonService } from './lesson.service';
-import { CreateLessonDto } from './dto';
+import { CreateLessonDto, CreateLessonProgressDto } from './dto';
 
 @Controller('lesson')
 export class LessonController {
@@ -25,5 +25,15 @@ export class LessonController {
   @Get('/:id')
   getLessonById(@Param('id') id: string) {
     return this.lessonService.getLessonById(id);
+  }
+
+  @Post('/progress')
+  createLessonProgress(@Body() dto: CreateLessonProgressDto) {
+    return this.lessonService.createLessonProgress(dto);
+  }
+
+  @Patch('/progress/:id')
+  incrementUserCourseProgress(@Param('id') id: number, @Body() userId: number ) {
+    return this.lessonService.trackLessonProgress(id, userId );
   }
 }

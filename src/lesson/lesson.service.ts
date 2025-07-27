@@ -1,86 +1,87 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateLessonDto } from './dto';
+import { CreateLessonDto, CreateLessonProgressDto } from './dto';
 
 @Injectable()
 export class LessonService {
+  private readonly Logger = new Logger(LessonService.name);
   constructor(private prisma: PrismaService) {}
 
-async createLesson(dto: CreateLessonDto) {
-  try {
-    // 1. Get the highest lesson number under the same miniModuleId
-    const lastLesson = await this.prisma.lesson.findFirst({
-      where: {
-        miniModuleId: dto.miniModuleId,
-      },
-      orderBy: {
-        number: 'desc',
-      },
-    });
-
-    // 2. Determine the next number
-    const nextNumber = lastLesson ? lastLesson.number + 1 : 1;
-
-    // 3. Create the lesson
-    const lesson = await this.prisma.lesson.create({
-      data: {
-        miniModuleId: dto.miniModuleId,
-        title: dto.title,
-        explanation: dto.explanation,
-        more: dto.more,
-        example: dto.example,
-        note: dto.note,
-        assignment: dto.assignment,
-        number: nextNumber,
+  async createLesson(dto: CreateLessonDto) {
+    try {
+      // 1. Get the highest lesson number under the same miniModuleId
+      const lastLesson = await this.prisma.lesson.findFirst({
+        where: {
+          miniModuleId: dto.miniModuleId,
+        },
+        orderBy: {
+          number: 'desc',
         },
       });
 
-      // 4. Find the Course related to this lesson
-      const course = await this.prisma.course.findFirst({
-        where: {
-          modules: {
-            some: {
-              miniModules: {
-                some: {
-                  lessons: {
-                    some: {
-                      id: lesson.id,
+      // 2. Determine the next number
+      const nextNumber = lastLesson ? lastLesson.number + 1 : 1;
+
+      // 3. Create the lesson
+      const lesson = await this.prisma.lesson.create({
+        data: {
+          miniModuleId: dto.miniModuleId,
+          title: dto.title,
+          explanation: dto.explanation,
+          more: dto.more,
+          example: dto.example,
+          note: dto.note,
+          assignment: dto.assignment,
+          number: nextNumber,
+          },
+        });
+
+        // 4. Find the Course related to this lesson
+        const course = await this.prisma.course.findFirst({
+          where: {
+            modules: {
+              some: {
+                miniModules: {
+                  some: {
+                    lessons: {
+                      some: {
+                        id: lesson.id,
+                      },
                     },
                   },
                 },
               },
             },
           },
-        },
-      });
+        });
 
-      if (course) {
-        // 5. Count all lessons in this course
-        const totalLessons = await this.prisma.lesson.count({
-          where: {
-            miniModule: {
-              courseModule: {
-                courseId: course.id,
+        if (course) {
+          // 5. Count all lessons in this course
+          const totalLessons = await this.prisma.lesson.count({
+            where: {
+              miniModule: {
+                courseModule: {
+                  courseId: course.id,
+                },
               },
             },
-          },
-        });
-        const totalLessonsDuration = `${totalLessons}`;
+          });
+          const totalLessonsDuration = `${totalLessons}`;
 
-        // 6. Update course duration with the total number of lessons
-        await this.prisma.course.update({
-          where: { id: course.id },
-          data: { duration: totalLessonsDuration },
-        });
+          // 6. Update course duration with the total number of lessons
+          await this.prisma.course.update({
+            where: { id: course.id },
+            data: { duration: totalLessonsDuration },
+          });
+        }
+
+        return lesson;
+      } catch (error) {
+        console.error(error);
+        throw error;
       }
-
-      return lesson;
-    } catch (error) {
-      console.error(error);
-      throw error;
     }
-  }
 
 
 
@@ -135,6 +136,102 @@ async createLesson(dto: CreateLessonDto) {
     } catch (error) {
       console.log(error)
       return error;
+    }
+  }
+
+  async createLessonProgress(dto: CreateLessonProgressDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: dto.userId,
+      }
+    });
+
+    if(!user) {
+      throw new NotFoundException("User does not exist");
+    }
+
+    const lesson = await this.prisma.miniModule.findUnique({
+      where: {
+        id: dto.lessonId,
+      }
+    });
+
+    if(!lesson) {
+      throw new NotFoundException("User does not exist");
+    }
+
+    try {
+      const lessonProgress = await this.prisma.userLessonProgress.create({
+        data: dto,
+      })
+
+      return {
+        message: "Tracking miniModuleProgress",
+        data: lessonProgress,
+      }
+    } catch (error) {
+      this.Logger.error(error);
+      throw new HttpException("Unable to create progress", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async trackLessonProgress(id: number, lessonId: number) {
+    const solutions = await this.prisma.lessonSolution.findMany({
+      where: {
+        lessonId: lessonId,
+      }
+    })
+
+    const totalSteps = solutions.length;
+    const lessonProgress = await this.prisma.userLessonProgress.findUnique({
+      where: {
+        id: id,
+      }
+    });
+
+    if(!lessonProgress) {
+      throw new NotFoundException("MiniModule not found");
+    }
+    const nextStep = lessonProgress.currentStep + 1;
+
+    const percentage = Math.round(( nextStep / totalSteps ) * 100);
+
+    try {
+      const updatedProgress = await this.prisma.userLessonProgress.update({
+        where: {
+          id: id
+        }, 
+        data: {
+          currentStep: nextStep,
+        }
+      })
+
+      if(updatedProgress.currentStep === totalSteps) {
+        await this.prisma.userLessonProgress.update({
+          where: {
+            id: id,
+          },
+          data: {
+            completed: true,
+          }
+        })
+        return {
+          message: "Lesson complete",
+          percentage: percentage,
+          Lessons: totalSteps,
+          currentStep: updatedProgress.currentStep
+        }
+      }
+
+      return {
+        message: "Tracking progress",
+        percentage: percentage,
+        currentStep: updatedProgress.currentStep,
+        Lessons: totalSteps
+      }
+    } catch (error) {
+      this.Logger.error(error)
+      throw new HttpException("Unable to create progress", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

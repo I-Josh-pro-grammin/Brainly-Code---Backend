@@ -135,14 +135,20 @@ export class CoursesService {
     }
   }
 
-  async incrementUserCourseProgress(id: number, courseId: number) {
+  async trackUserCourseProgress(id: number, courseId: number) {
     const courseModules = await this.prisma.courseModule.findMany({
       where: {
         courseId: courseId,
       },
     });
+
+    const videos = await this.prisma.video.findMany({
+      where: {
+        courseId: courseId,
+      },
+    })
   
-    const totalSteps = courseModules.length;
+    const totalSteps = courseModules.length + videos.length;
   
     if (totalSteps === 0) {
       throw new Error("This course has no modules.");

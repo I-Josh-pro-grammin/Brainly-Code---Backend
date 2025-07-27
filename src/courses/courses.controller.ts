@@ -62,8 +62,8 @@ export class CoursesController {
   }
 
   @Patch('/progress/:id')
-  incrementUserCourseProgress(@Param('id') id: number, @Body() userId: number ) {
-    return this.coursesService.incrementUserCourseProgress(id, userId )
+  trackUserCourseProgress(@Param('id') id: number, @Body() userId: number ) {
+    return this.coursesService.trackUserCourseProgress(id, userId )
   }
 }
 
