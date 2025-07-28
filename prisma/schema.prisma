@@ -40,11 +40,11 @@ model User {
   course   Course? @relation(fields: [courseId], references: [id])
 
   // New relations
-  ratings            CourseRating[]
-  ChallengeLike      ChallengeLike[]
-  image              UserProfileImage[]
-  createdCourses     Course[]             @relation("CreatedCourses")
-  progress           UserCourseProgress[]
+  ratings        CourseRating[]
+  ChallengeLike  ChallengeLike[]
+  image          UserProfileImage[]
+  createdCourses Course[]             @relation("CreatedCourses")
+  progress       UserCourseProgress[]
 
   userModuleProgress userModuleProgress[]
   MiniModuleProgress MiniModuleProgress[]
@@ -78,11 +78,11 @@ model Course {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  modules        CourseModule[]
-  progress       UserCourseProgress[]
-  ratings        CourseRating[]
-  videos         Video[]
-  users          User[]
+  modules  CourseModule[]
+  progress UserCourseProgress[]
+  ratings  CourseRating[]
+  videos   Video[]
+  users    User[]
 }
 
 model UserCourseProgress {
@@ -98,7 +98,6 @@ model UserCourseProgress {
   rating      Int? // optional rating
 }
 
-
 model CourseModule {
   id       Int    @id @default(autoincrement())
   course   Course @relation(fields: [courseId], references: [id])
@@ -106,8 +105,8 @@ model CourseModule {
   title    String
   number   Int
 
-  miniModules        MiniModule[]
-  progress           userModuleProgress[]
+  miniModules MiniModule[]
+  progress    userModuleProgress[]
 
   @@unique([courseId, number])
 }
@@ -145,21 +144,21 @@ model MiniModule {
 
   lessons      Lesson[]
   lessonVideos LessonVideo[]
-  progress MiniModuleProgress[]
+  progress     MiniModuleProgress[]
 
   @@unique([courseModuleId, number])
 }
 
 model MiniModuleProgress {
-  id           Int          @id @default(autoincrement())
-  user         User         @relation(fields: [userId], references: [id])
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id])
   userId       Int
   miniModule   MiniModule @relation(fields: [miniModuleId], references: [id])
   miniModuleId Int
-  currentStep  Int          @default(0)
-  completed    Boolean      @default(false)
-  startedAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  currentStep  Int        @default(0)
+  completed    Boolean    @default(false)
+  startedAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Lesson {
@@ -170,15 +169,13 @@ model Lesson {
   example     String?
   note        String?
   assignment  String
-  number      Int     @unique()
+  number      Int
 
   miniModuleId Int
-  miniModule   MiniModule       @relation(fields: [miniModuleId], references: [id])
+  miniModule   MiniModule           @relation(fields: [miniModuleId], references: [id])
   solutions    LessonSolution[]
-  progress UserLessonProgress[]
+  progress     UserLessonProgress[]
 }
-
-
 
 model LessonVideo {
   id     Int    @id @default(autoincrement())
@@ -203,7 +200,7 @@ model UserLessonProgress {
   id          Int      @id @default(autoincrement())
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
-  lesson     Lesson   @relation(fields: [lessonId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
   lessonId    Int
   currentStep Int      @default(0)
   completed   Boolean  @default(false)

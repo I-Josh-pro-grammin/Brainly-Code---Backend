@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
+import { error } from 'console';
 
 @Injectable()
 export class CloudinaryService {
@@ -49,12 +53,13 @@ export class CloudinaryService {
       cloudinary.uploader.destroy(
         publicId,
         { resource_type: 'image' },
-        (error, result) => {
+        (error, _result) => {
           if (error) return reject(error);
           resolve();
         },
       );
-    });
+    }
+  );
   }
 
   getPublicIdFromUrl(imageUrl: string): string | null {
@@ -72,3 +77,7 @@ export class CloudinaryService {
     }
   }
 }
+function then() {
+  throw new Error('Function not implemented.');
+}
+
