@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, Param, Patch } from "@nestjs/common";
 import {
-  Put,
   UseGuards,
   UseInterceptors,
   Req,
@@ -22,8 +21,9 @@ export class UserController {
   getMe(@GetUser() user: User) {
     return this.userService.getMe(user);
   }
-  @Put("edit/:id")
-  @UseInterceptors(FileInterceptor("file"))
+  
+  @Patch("edit/:id")
+  @UseInterceptors(FileInterceptor("image"))
   async editUser(
     @Param("id") id: string,
     @Req() req: Request
@@ -33,7 +33,7 @@ export class UserController {
   }
 
   @Get(":id")
-  getCurrentUser(@Param("id") id: string) {
+  getCurrentUserById(@Param("id") id: string) {
     return this.userService.getCurrentUser(id);
   }
 }

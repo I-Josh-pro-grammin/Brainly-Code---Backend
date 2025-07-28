@@ -40,4 +40,9 @@ export class ProfileImageController {
     return this.profileImageService.getProfileImage(id);
   }
 
+  @Get('')
+  getProfileImages() {
+    return this.profileImageService.getProfileImages();
+  }
+
 }

@@ -36,15 +36,20 @@ export class UserService {
   }
 
   async editUser(userId: number, dto: EditUserDto) {
+    const previousUser = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      }
+    })
 
     const user = await this.prisma.user.update({
       where: {
         id: userId,
       },
       data: {
-        isPremium: dto.isPremium,
-        email: dto.email,
-        username: dto.username,
+        isPremium: dto.isPremium || previousUser?.isPremium,
+        email: dto.email || previousUser?.email,
+        username: dto.username || previousUser?.username ,
       },
     });
 

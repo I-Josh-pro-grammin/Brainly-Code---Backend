@@ -65,4 +65,8 @@ export class ProfileImageService {
     return userProfileImage;
 
   }
+
+  async getProfileImages() {
+    return await this.prisma.userProfileImage.findMany();
+  }
 }
