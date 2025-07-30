@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EditUserDto } from './dto';
 
@@ -39,13 +39,19 @@ export class AdminService {
   async deleteUser(id: string) {
 
     const userId = Number(id);
-    const user = await this.prisma.user.delete({
-      where: {
-        id: userId,
-      }
-    })
 
-    return user
+    try {
+      await this.prisma.user.delete({
+        where: {
+          id: userId,
+        }
+      })
+  
+      return {message: "User Deleted successfully"};
+    } catch (error) {
+      console.log(error)
+      throw new HttpException("Unable to delete User", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async editUser(userId: number, dto: EditUserDto) {
@@ -69,6 +75,21 @@ export class AdminService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
   }
+  }
+
+  async createLessonSolution(dto: {lessonId: number, solution: string}) {
+    try {
+      await this.prisma.lessonSolution.create({
+        data: dto
+      });
+
+      return {message: "Solution created Successfully"};
+    } catch (error) {
+      console.log(error);
+      throw new HttpException("INTERNAL SERVER ERROR:", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
   }
 
 }

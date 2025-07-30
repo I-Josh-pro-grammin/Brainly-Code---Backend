@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtGuard } from 'src/guard';
 import { EditUserDto } from './dto';
@@ -32,5 +32,10 @@ export class AdminController {
     @Body() dto: EditUserDto,
   ) {
     return this.adminServices.editUser(+id, { ...dto });
+  }
+
+  @Post('/lesson/solution')
+  createLessonSolution(@Body() dto: {lessonId: number, solution: string}) {
+    return this.adminServices.createLessonSolution(dto);
   }
 }

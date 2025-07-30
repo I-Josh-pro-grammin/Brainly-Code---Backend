@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateLessonDto, CreateLessonProgressDto } from './dto';
+import { CreateLessonDto, CreateLessonProgressDto, TrackLessonProgressDto } from './dto';
 
 @Injectable()
 export class LessonService {
@@ -175,10 +175,11 @@ export class LessonService {
     }
   }
 
-  async trackLessonProgress(id: number, lessonId: number) {
+  async trackLessonProgress(id: number, dto: TrackLessonProgressDto) {
+    console.log(dto.lessonId);
     const solutions = await this.prisma.lessonSolution.findMany({
       where: {
-        lessonId: lessonId,
+        lessonId: dto.lessonId,
       }
     })
 
@@ -194,7 +195,10 @@ export class LessonService {
     }
     const nextStep = lessonProgress.currentStep + 1;
 
-    const percentage = Math.round(( nextStep / totalSteps ) * 100);
+    let percentage = Math.round(( nextStep / totalSteps ) * 100);
+    if(!percentage) {
+      percentage = 0;
+    }
 
     try {
       const updatedProgress = await this.prisma.userLessonProgress.update({
@@ -233,5 +237,34 @@ export class LessonService {
       this.Logger.error(error)
       throw new HttpException("Unable to create progress", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getLessonProgress(lessonId: number) {
+    const lessonProgress = await this.prisma.userLessonProgress.findMany({
+      where: {
+        lessonId: lessonId,
+      }
+    })
+
+    return {data: lessonProgress};
+  }
+
+  async getLessonSolution(lessonId: number) {
+    
+    try {
+      const lessonSolution = await this.prisma.lessonSolution.findUnique({
+        where: {
+          lessonId: lessonId,
+        }
+      });
+      if(!lessonSolution) {
+        throw new Error("Solution Not Found");
+      }
+      return lessonSolution;
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException("solution not found");
+    }
+
   }
 }

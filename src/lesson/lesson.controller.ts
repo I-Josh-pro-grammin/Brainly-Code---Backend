@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { LessonService } from './lesson.service';
-import { CreateLessonDto, CreateLessonProgressDto } from './dto';
+import { CreateLessonDto, CreateLessonProgressDto, TrackLessonProgressDto } from './dto';
 
 @Controller('lesson')
 export class LessonController {
@@ -33,7 +33,24 @@ export class LessonController {
   }
 
   @Patch('/progress/:id')
-  incrementUserCourseProgress(@Param('id') id: number, @Body() userId: number ) {
-    return this.lessonService.trackLessonProgress(id, userId );
+  incrementUserCourseProgress(@Param('id') id: number, @Body() dto: TrackLessonProgressDto ) {
+    if(isNaN(id)) {
+      throw new Error("Invalid Id, should be number");
+    }
+    return this.lessonService.trackLessonProgress(id, dto);
+  }
+
+  @Get('/progress/:lessonId')
+  GetLessonProgress(@Param('lessonId') lessonId: number) {
+    if(isNaN(lessonId)) {
+      throw new Error("Invalid lessonId, should be number");
+    }
+
+    return this.lessonService.getLessonProgress(lessonId);
+  }
+
+  @Get('/solution/:lessonId')
+  async getLessonSolution(@Param('lessonId') lessonId: number) {
+      return await this.lessonService.getLessonSolution(lessonId);
   }
 }
