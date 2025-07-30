@@ -38,11 +38,28 @@ export class AuthService {
           email: dto.email,
           hash,
           role: dto.role,
+          isPremium: false, // <-- Explicitly set isPremium to false on signup
         },
       });
 
-      //returning the user token
-      return this.signToken(user.id, user.email, user.role);
+      // Returning the user token, now including isPremium
+      // We need to fetch the user again to ensure we get all fields including isPremium
+      const createdUserWithPremium = await this.prisma.user.findUnique({
+          where: { id: user.id },
+          select: {
+              id: true,
+              email: true,
+              role: true,
+              isPremium: true, // Select isPremium
+              // Add other fields you want to return with the token payload if necessary
+          }
+      });
+
+      if (!createdUserWithPremium) {
+        throw new ForbiddenException("Could not retrieve user details after signup.");
+      }
+
+      return this.signToken(createdUserWithPremium.id, createdUserWithPremium.email, createdUserWithPremium.role, createdUserWithPremium.isPremium);
     } catch (error) {
       if (
         error instanceof
@@ -65,6 +82,13 @@ export class AuthService {
         where: {
           email: dto.email,
         },
+        select: { // Select all necessary fields, including isPremium
+            id: true,
+            email: true,
+            hash: true,
+            role: true,
+            isPremium: true, // <-- Select isPremium here
+        }
       });
 
     if (!user) {
@@ -85,20 +109,29 @@ export class AuthService {
       );
     }
 
-    return this.signToken(user.id, user.email, user.role);
+    // Return the token, now including isPremium
+    return this.signToken(user.id, user.email, user.role, user.isPremium);
   }
 
   async signToken(
     userId: number,
     email: string,
     role: string,
+    isPremium: boolean, // <-- Add isPremium as a parameter
   ): Promise<{
     access_token: string;
+    user: { // Add a user object to the response for frontend
+      id: number;
+      email: string;
+      role: string;
+      isPremium: boolean;
+    }
   }> {
     const payload = {
       sub: userId,
       email,
-      role: role
+      role: role,
+      isPremium: isPremium, // <-- Include isPremium in the JWT payload
     };
 
     const secret = this.config.get("JWT_SECRET");
@@ -113,6 +146,12 @@ export class AuthService {
 
     return {
       access_token: token,
+      user: { // Also return user details directly in the login/signup response
+        id: userId,
+        email: email,
+        role: role,
+        isPremium: isPremium,
+      }
     };
   }
 
